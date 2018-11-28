@@ -1,23 +1,18 @@
-digraph {
-A[label="A\nBest: 1"];
-A -> B
-A -> D[label="2"style=dotted];
-A -> E[label="2"style=dotted];
-B[label="B\nBest: 0"];
-B -> A[label="1"style=dotted];
-B -> D[label="9"style=dotted];
-B -> E[label="4"style=dotted];
-C[label="C\nBest: 11"];
-C -> B
-C -> A
-C -> D[label="2"color=red];
-C -> D[label="2"style=dotted];
-D[label="D\nBest: 3"];
-D -> B
-D -> A
-D -> C[label="8"style=dotted];
-D -> E[label="3"style=dotted];
-E[label="E\nBest: 3"];
-E -> B
-E -> A
+graph {
+A1[label="A1"];
+A2[label="A2"];
+A3[label="A3\nBest: 0"];
+A4[label="A4"];
+A4 -- A5[label="2"style=dotted];
+A5[label="A5"];
+A5 -- A4[label="2"style=dotted];
+A5 -- A6[label="5"style=dotted];
+A5 -- A7[label="2"style=dotted];
+A6[label="A6"];
+A6 -- A5[label="5"style=dotted];
+A6 -- A7[label="3"style=dotted];
+A7[label="A7"];
+A7 -- A5[label="2"style=dotted];
+A7 -- A6[label="3"style=dotted];
+A0[label="A0"];
 }

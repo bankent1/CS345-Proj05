@@ -5,21 +5,44 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
+ * Implimentation of Dijkstra's min distance algorithm. The program is called on 
+ * by the test driver code to run the algorithm on a given .dot file. It allows 
+ * for the printing of the results to the console as well as a .dot file to show 
+ * a visual representation of the solution found. Works on both directed and 
+ * indirected graphs.
+ * 
  * @author Travis Banken  
  */
 public class Proj05_Dijkstra_student implements Proj05_Dijkstra {
     private boolean isDigraph;
     private HashMap<String, MyGraphNode> nodeMap = new HashMap<>();
 
+    /**
+     * Constructor for the algorithm.
+     * 
+     * @param isDigraph - determines if the input is a digraph or graph
+     */
     public Proj05_Dijkstra_student (boolean isDigraph) {
         this.isDigraph = isDigraph;
     }
 
+    /**
+     * Adds a node to the graph
+     * 
+     * @param s - name of node to add to the graph
+     */
     public void addNode(String s) {
         MyGraphNode node = new MyGraphNode(s);
         nodeMap.put(s, node);
     }
 
+    /**
+     * adds an edge to the graph
+     * 
+     * @param from - the node the edge connects from
+     * @param to - the node the edge connects to
+     * @param weight - the weight of the edge
+     */
     public void addEdge(String from, String to, int weight) {
         nodeMap.get(from).addNeighbor(to, weight);
         if (!isDigraph) {
@@ -27,6 +50,12 @@ public class Proj05_Dijkstra_student implements Proj05_Dijkstra {
         }
     }
 
+    /**
+     * Runs dijkstra's algorithm with a given start node. 
+     * Note: Does not check for invalid node start.
+     * 
+     * @param startNodeName - the name of the node to start from
+     */
     public void runDijkstra(String startNodeName) {
         MyDijkHeap minHeap = new MyDijkHeap();
         //HashMap<String, ArrayList<String>> pathMap = new HashMap<>();
@@ -42,10 +71,11 @@ public class Proj05_Dijkstra_student implements Proj05_Dijkstra {
                 continue;
             }
             
+            // look at all neighbors and if the new path to neighbor is a better 
+            // distance, we update the distance and the best path meta data
             for (String neighbor : nodeMap.get(currNode).neighbors.keySet()) {
                 int dist = nodeMap.get(currNode).distance + nodeMap.get(currNode).neighbors.get(neighbor);
                 if (dist < nodeMap.get(neighbor).distance) {
-                    //nodeMap.get(neighbor).bestPath = nodeMap.get(currNode).bestPath;
                     nodeMap.get(neighbor).bestPath = new ArrayList<>();
                     for (String n : nodeMap.get(currNode).bestPath) {
                         nodeMap.get(neighbor).bestPath.add(n);
@@ -60,6 +90,11 @@ public class Proj05_Dijkstra_student implements Proj05_Dijkstra {
         }
     }
 
+    /**
+     * Prints out the results to the console
+     * 
+     * @param startNodeName - the name of the node the algorithm started with
+     */
     public void printDijkstraResults(String startNodeName) {
         for (String node : nodeMap.keySet()) {
             System.out.print(startNodeName + " -> " + node);
@@ -78,6 +113,10 @@ public class Proj05_Dijkstra_student implements Proj05_Dijkstra {
         //dubugDot();
     }
 
+    /**
+     * Writes a .dot file which represents a visual solution found from running 
+     * the algorithm
+     */
     public void writeSolutionDotFile() {
         PrintWriter outfile = null;
         try {
@@ -92,94 +131,31 @@ public class Proj05_Dijkstra_student implements Proj05_Dijkstra {
             outfile.println("graph {");
         }
 
-        HashMap<String, Boolean> seenEdge = initSeenEdge(); 
+        // for every node in the graph, we look at all of the neighbors.
+        // if the neighbor lies on the best path, then we color the edge red
+        // otherwise we make the edge dotted
         for (String node : nodeMap.keySet()) {
             outfile.println(node + "[label=\"" + node + (nodeMap.get(node).distance == 
                             Integer.MAX_VALUE ? "" : "\\nBest: " + nodeMap.get(node).distance) +  "\"];");
 
-            // for (String neighbor : nodeMap.get(node).allNeighbors()) {
-            //     int prevIndex = nodeMap.get(neighbor).bestPath.indexOf(neighbor) - 1;
-            //     String labelStr = "[label=\"" + nodeMap.get(node).neighbors.get(neighbor) + "\"";
-
-            //     ArrayList<String> path = nodeMap.get(neighbor).bestPath;
-            //     if (prevIndex != -1 && path.contains(node) && path.get(prevIndex).equals(node)) {
-            //         labelStr += "color=red";
-            //     }
-            //     else if (/*TODO: Check if seen edge before */) {
-            //         labelStr += "style=dotted";
-            //     }
-            //     labelStr += "];";
-
-            //     outfile.println(node + (isDigraph ? " -> " : " -- ") + neighbor + labelStr);
-                   
-            // }
-            
-            // first iterate over edges which lie on the best path
-            for (String pathNode : nodeMap.get(node).bestPath) {
-                seenEdge.put(node + pathNode, true);
-
-                int prevIndex = nodeMap.get(pathNode).bestPath.indexOf(pathNode) - 1;
-                ArrayList<String> path = nodeMap.get(pathNode).bestPath;
-                String labelStr = "";
-                Integer dist = nodeMap.get(node).neighbors.get(pathNode);
-                if (prevIndex != -1 /*&& path.get(prevIndex).equals(node)*/ && dist != null) {
-                    labelStr = "[label=\"" + dist.intValue() + 
-                                  "\"" + "color=red];";
-                }
-                if (!node.equals(pathNode)) {
-                    String edgeStr = node + (isDigraph ? " -> " : " -- ") + pathNode + labelStr;
-                    outfile.println(edgeStr);
-                }
-            }
-
-            // now iterate over all edges and skip ones we already covered
             for (String neighbor : nodeMap.get(node).allNeighbors()) {
-                if (!isDigraph && (seenEdge.get(node + neighbor) || seenEdge.get(neighbor + node))) {
-                    continue;
+                int prevIndex = nodeMap.get(neighbor).bestPath.indexOf(neighbor) - 1;
+                String labelStr = "[label=\"" + nodeMap.get(node).neighbors.get(neighbor) + "\"";
+
+                // here we check to see if the node and the neighbor are actually 
+                // adjacent on the best path. We only want to color red if this 
+                // is true.
+                ArrayList<String> path = nodeMap.get(neighbor).bestPath;
+                if (prevIndex != -1 && path.contains(node) && path.get(prevIndex).equals(node)) {
+                    labelStr += "color=red";
                 }
-                String labelStr = "[label=\"" + nodeMap.get(node).neighbors.get(neighbor) + 
-                                  "\"" + "style=dotted];";
-                String edgeStr = node + (isDigraph ? " -> " : " -- ") + neighbor + labelStr;
-                outfile.println(edgeStr);
-            }
-        }
+                else {
+                    labelStr += "style=dotted";
+                }
+                labelStr += "];";
 
-        outfile.println("}");
-
-        outfile.close();
-       
-    }
-
-    private HashMap<String, Boolean> initSeenEdge() {
-        HashMap<String, Boolean> seenEdge = new HashMap<>();
-        for (String n1 : nodeMap.keySet()) {
-            for (String n2 : nodeMap.keySet()) {
-                seenEdge.put(n1 + n2, false);
-            }
-        }
-
-        return seenEdge;
-    }
-
-    private void dubugDot() {
-        PrintWriter outfile = null;
-        try {
-            outfile = new PrintWriter(new File("debug.dot"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        if (isDigraph) {
-            outfile.println ("digraph {");
-        } else {
-            outfile.println("graph {");
-        }
-
-        for (String snode : nodeMap.keySet()) {
-            outfile.println(snode + ";");
-            for (String neighbor : nodeMap.get(snode).allNeighbors()) {
-                outfile.println(snode + " -> " + neighbor + "[label=" + 
-                    nodeMap.get(snode).neighbors.get(neighbor) + "];");
+                outfile.println(node + (isDigraph ? " -> " : " -- ") + neighbor + labelStr);
+                   
             }
         }
 
