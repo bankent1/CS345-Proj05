@@ -1,0 +1,12 @@
+A -> A: best 0: A
+A -> B: best 4: A B
+A -> C: best 6: A B C
+A -> D: best 6: A B E D
+A -> E: best 5: A B E
+A -> F: best 7: A B C F
+A -> G: best 17: A B E D G
+A -> H: best 9: A B C F H
+A -> I: best 9: A B C F I
+A -> J: best 13: A B C F I J
+A -> K: best 1: A K
+A -> L: best 12: A L

@@ -1,0 +1,5 @@
+B -> A: best 1: B A
+B -> B: best 0: B
+B -> C: best 11: B A D C
+B -> D: best 3: B A D
+B -> E: best 3: B A E

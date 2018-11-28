@@ -1,0 +1,23 @@
+digraph {
+A[label="A\nBest: 1"];
+A -> B
+A -> D[label="2"style=dotted];
+A -> E[label="2"style=dotted];
+B[label="B\nBest: 0"];
+B -> A[label="1"style=dotted];
+B -> D[label="9"style=dotted];
+B -> E[label="4"style=dotted];
+C[label="C\nBest: 11"];
+C -> B
+C -> A
+C -> D[label="2"color=red];
+C -> D[label="2"style=dotted];
+D[label="D\nBest: 3"];
+D -> B
+D -> A
+D -> C[label="8"style=dotted];
+D -> E[label="3"style=dotted];
+E[label="E\nBest: 3"];
+E -> B
+E -> A
+}
